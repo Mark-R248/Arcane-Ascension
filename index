@@ -1,0 +1,965 @@
+<head>
+  <style>
+    h1,
+    h2 {
+      text-align: center;
+    }
+
+    /*Control buttons*/
+    .top-controls {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .top-controls button {
+      padding: 10px;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      border: 1px solid #555;
+      background: #222;
+      color: #ddd;
+      transition: 0.2s;
+    }
+
+    .top-controls button:hover {
+      background: #444;
+    }
+
+    .top-controls {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .top-controls .control-pair {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    /* Magic grid */
+    .magic-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .magic-pair {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+      position: relative;
+    }
+
+    .magic-pair::after {
+      content: "✕";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 18px;
+      color: rgba(0, 0, 0, 0.8);
+      pointer-events: none;
+    }
+
+    .magic {
+      padding: 10px;
+      border-radius: 8px;
+      text-align: center;
+      font-weight: bold;
+      background: #404040;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #D9D9D9;
+    }
+
+    .magic.selected {
+      border: 0px solid #ccc;
+      box-shadow: inset 0 0 10px 3px rgba(255, 255, 255, 1);
+    }
+
+    .magic.exclude {
+      box-shadow: inset 0 0 10px 3px rgba(255, 0, 0, 1);
+    }
+
+    .green {
+      background: #27ae60;
+      color: black;
+    }
+
+    .yellow {
+      background: #f2c94c;
+      color: black;
+    }
+
+    .magic-pair.no-x::after {
+      content: "";
+    }
+
+    .magic-count {
+      margin-left: 8px;
+      font-weight: bold;
+    }
+
+    /* Attunement grid */
+    .spire-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .attunement {
+      padding: 10px;
+      border-radius: 8px;
+      text-align: center;
+      cursor: pointer;
+      font-weight: bold;
+      transition: 0.2s;
+      color: black;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .attunement.spire-glow {
+      box-shadow: inset 0 0 10px 3px rgba(0, 0, 0, 0.7);
+    }
+
+    /* Attunment tags */
+    .tag-container {
+      margin-top: 6px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    .tag {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: rgba(0, 0, 0, 0.4);
+      color: white;
+    }
+
+    .tag.weak {
+      background: rgba(0, 0, 0, 0.2);
+      color: white;
+    }
+
+    .compound-tags .tag {
+      font-size: 9px;
+      padding: 1px 4px;
+      border-radius: 3px;
+      margin-top: 2px;
+      display: inline-block;
+    }
+
+    .compound-tags .tag.primary {
+      background: rgba(255, 255, 255, 0.8);
+      color: black;
+    }
+
+    .compound-tags .tag.tertiary {
+      background: rgba(255, 255, 255, 0.4);
+      color: black;
+    }
+
+    /*Spire colours*/
+    .hydra {
+      background: #E49EDD;
+    }
+
+    .phoenix {
+      background: #FFE699;
+    }
+
+    .serpent {
+      background: #C6E0B4;
+    }
+
+    .tiger {
+      background: #F8CBAD;
+    }
+
+    .tortoise {
+      background: #BDD7EE;
+    }
+
+    .restricted {
+      background: #BFBFBF;
+    }
+
+    .hydra.selected {
+      background: #782170;
+      color: white;
+    }
+
+    .phoenix.selected {
+      background: #BF8F00;
+      color: white;
+
+    }
+
+    .serpent.selected {
+      background: #548235;
+      color: white;
+    }
+
+    .tiger.selected {
+      background: #C65911;
+      color: white;
+    }
+
+    .tortoise.selected {
+      background: #2F75B5;
+      color: white;
+    }
+
+    .restricted.selected {
+      background: #808080;
+      color: white;
+    }
+
+    /*Attunment ability descriptions*/
+    #attunementDescriptions {
+      margin-top: 15px;
+      padding: 12px;
+      border-radius: 8px;
+      color: #737373;
+    }
+
+    #attunementDescriptions p {
+      margin: 6px 0;
+    }
+
+    /*Compound grid*/
+    .compound-container {
+      width: 100%;
+      overflow: auto;
+      padding: 10px;
+      margin-top: 20px;
+    }
+
+    .compound-grid {
+      display: grid;
+      grid-template-columns: 120px repeat(12, auto);
+      gap: 5px;
+      white-space: nowrap;
+    }
+
+    .compound {
+      padding: 6px 10px;
+      text-align: center;
+      border-radius: 6px;
+      border: 1px solid #555;
+      background: #222;
+      font-size: 12px;
+    }
+
+    .compound.inactive {
+      background: #222;
+      color: #888;
+      opacity: 1;
+    }
+
+    .header {
+      padding: 6px 10px;
+      text-align: center;
+      font-weight: bold;
+      border-radius: 6px;
+      border: 1px solid #555;
+      background: #f9f9f9;
+      color: #000;
+      font-size: 12px;
+    }
+
+    .compound.yellow {
+      background: #f2c94c;
+    }
+
+    .compound.green {
+      background: #27ae60;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="custom-wrap">
+    <h2>Controls</h2>
+
+    <div class="top-controls">
+      <div class="control-pair">
+        <button onclick="clearSelections()">Clear Attunements</button>
+        <button onclick="shareBuild()">Share Build</button>
+      </div>
+      <div class="control-pair">
+        <button onclick="clearFilters()">Clear Filters</button>
+        <button onclick="toggleFilterMode()" id="filterModeBtn">Filter Mode: AND</button>
+      </div>
+    </div>
+
+    <h2>Mana Types</h2>
+
+    <div class="magic-grid" id="magicGrid"></div>
+
+    <h2>Attunement Selector</h2>
+    <div id="container" class="spire-grid"></div>
+
+    <h2>Specific Abilities</h2>
+    <p>All attunements grant certain additional benefits along with access to certain magic types and a shroud. These benefits range from a unique talent to boosting the efficacy of a specific type of magic.</p>
+    <div id="attunementDescriptions"></div>
+
+    <h2>Compound Mana</h2>
+    <div class="compound-container">
+      <div id="compoundGrid" class="compound-grid"></div>
+    </div>
+  </div>
+
+  <script>
+    const attunementDescriptions = {
+      "Assassin": "Assassins have the unique ability to create poison harmless to them within their bodies, excreting it like sweat at will.",
+      "Commander": "A Commander can extend their shroud over a target, their abilities and spells gain potency and effectiveness within their shroud.",
+      "Executioner": "Executioners are able to shape their shroud into a weapon of pure magic, this weapon is able to cleave through some equipment and wounds it inflicts are difficult to heal.",
+      "Juggernaut": "A Juggernaut can draw their shroud into their body, while this leaves them vulnerable it also empowers their body and physical abilities.",
+      "Legionnaire": "Legionnaires are able to extend their shrouds around them bolstering the shrouds of their allies without weakening their own.",
+      "Saboteur": "A Saboteur can extend their shroud in order to weaken the shrouds of their foes, this does not weaken their own defence.",
+      "Scourge": "Scourges gain the ability spend a portion of their shroud to infect other creatures with debilitating illnesses.",
+      "Shieldbreaker": "A Shieldbreaker can use parts of their shroud to empower their spells allowing them to sacrifice defence for offence.",
+      "Conjurer": "Conjurers can create creatures and imbue them with a facsimile of life, while not as powerful as summon of a real monster, the conjurer can create any creature the can imagine.",
+      "Dancer": "A Dancer has a potent ability to intercept certain magical effects especially focused on esoteric and spiritual attacks and then redirect them.",
+      "Mesmer": "Mesmers are uniquely gifted in going unnoticed, being able to quite literally become impossible to acknowledge.",
+      "Purifier": "A Purifier is especially hard to use debilitating effects on and are experts in precise high damaging magic",
+      "Pyromancer": "Pyromancers gain a significant boost to their fiery abilities, and are able to cause areas of heat to combust.",
+      "Shapeshifter": "A Shapeshifter makes contracts with monsters in order to gain the ability to transform partially or completely into the creature and make use of it's talents.",
+      "Spellsinger": "Spellsingers is able to widen the area of their abilities simply by speaking, this effect compounds with the benefits of a lung mark.",
+      "Swordmaster": "A Swordmasters are especially adept and channelling magic into their weapons, imbuing them with spells and boosting their overall effectiveness.",
+      "Diviner": "Diviners have the unique ability to craft a solid memory, storing it in crystal or liquid form, which can then be viewed by any creature with magic.",
+      "Elementalist": "An Elementalist is an expert in long range offensive elemental magic.",
+      "Enchanter": "Enchanters are able to permanently imbue an item with effects based on the types of magic they have access to by using runes.",
+      "Guardian": "A Guardian gains a shroud even at pearl rank and can shape their shroud immediately and with greater precision than other attuned.",
+      "Mender": "Menders are uniquely talented at mending bones, able to heal physical injuries for far greater efficiency.",
+      "Shadow": "A Shadow can grant solidity and physical presence to their illusions with greater efficacy than others and are gifted in affecting the senses of others.",
+      "Shaper": "Shapers can create magical constructs and control them with unique accuracy, control, and speed, at topaz rank, they also gain the ability to create simulacra of themselves or others.",
+      "Summoner": "A Summoner forms contracts with other creatures gaining the ability to summon a copy of the creature, if included in their contract, a summoner can use the magic of those creatures.",
+      "Analyst": "Analysts have a rapid ability to understand and process sensory information, discerning intricate knowledge from a brief glance or touch.",
+      "Architect": "An Architect can temporarily imbue items with magic, these effects can be less powerful to last longer, or vice versa.",
+      "Biomancer": "Biomancers can alter the flow and composition of mana in another creatures body, this takes time but allows them to heal esoteric injuries and regenerate magic more quickly.",
+      "Controller": "A Controller is exceptionally gifted in compulsion magic, able to use it with far greater efficacy and can enthral other creatures.",
+      "Forgemaster": "Forgemasters are exceptional manipulators of metal beyond simply gaining the compound magic of metal gaining a great proficiency for it.",
+      "Illuminator": "An Illuminator is able to project their shroud into an aura to weaken chosen offensive abilities within its area.",
+      "Sentinel": "Sentinels are exceptionally difficult to affect with any spiritual magic, possessing great mental fortitude",
+      "Transmuter": "A Transmuter is gifted in the transformation of materials from one type into another, they can also alter the properties of material.",
+      "Acolyte": "Acolytes are unmatched in healing illnesses and poisons which often resist healing abilities requiring water magic to neutralise, they can purge a body of many esoteric blights.",
+      "Champion": "A Champion is exceptionally defensive, able to turn their shroud into icy armour and guard their mind with a similar ability that limits their mental focus to a single task.",
+      "Cloudcaller": "Cloudcallers can conjure and imbue clouds magic in the air, from others, or from items, this can create a vast area of effect with lesser effect that does not distinguish friend and foe.",
+      "Illusionist": "An Illusionist can grant an illusion autonomy to act independently for a time, they can also reduce the cost of illusions by focusing only on certain senses.",
+      "Seer": "Seers are especially talented in glimpsing likely futures, gaining much greater rewards from using destiny magic.",
+      "Soulblade": "A Soulblade forms contracts with monsters which they then infuse into an item, making it magical and granting it abilities related to the monster. The monster powers the item, and it can be summoned is the Soulblade spends their own magic to empower the creature.",
+      "Wavewalker": "Wavewalkers are able to manipulate their own gravity with tides magic, they can also walk on any wet surface, and, in rain can run through the air.",
+      "Wayfarer": "A Wayfarer gains access to their tertiary magic immediately and do not wait until reaching topaz rank allowing them access to their full arsenal immediately.",
+      "Abjurer": "Abjurers are almost immune to possession and their banishment magic is especially potent gaining the additional effect of sealing some of the targets power for a time after banishment.",
+      "Arbiter": "An Arbiter is able to purify their magic, allowing them to use multiple types and transfer their magic to others with much greater efficiency.",
+      "Chronomancer": "Chronomancers and uniquely gifted in the perception of time, allowing great efficiency with acceleration magic like haste, their shroud can also decelerate anything that passes through.",
+      "Heirophant": "A Heirophant gains the ability to greatly extend their shroud into an aura which they can imbue with a spell allowing it to continually affect creatures of their choice within the aura.",
+      "Necromancer": "Necromancers gain access to their tertiary magic immediately rather than waiting for the topaz rank.",
+      "Paladin": "A Paladin makes a pact with an entity of power, and gains the ability to invoke the power of said entity for a short time.",
+      "Sovreign": "Sovreigns can copy a spell they see for a time and have the ability to temporarily steal another persons attunment.",
+      "Whisper": "A Whisper can emulate other attunments at a lower level then their own, they can also change this attunment marks appearance and it's location at will.",
+    };
+    const magicPairs = [
+      ["Air", "Earth"],
+      ["Fire", "Water"],
+      ["Light", "Umbral"],
+      ["Death", "Life"],
+      ["Motion", "Enhance"],
+      ["Perceive", "Mental"]
+    ];
+    const allTypes = magicPairs.flat();
+    const spires = {
+      Tiger: {
+        class: "tiger", attunements: {
+          "Analyst": {"Umbral": 1,"Mental": 1,"Motion": 3},
+          "Architect": {"Umbral": 1,"Perceive": 1,"Enhance": 3},
+          "Biomancer": {"Light": 3,"Life": 1,"Mental": 1},
+          "Controller": {"Umbral": 3,"Perceive": 1,"Enhance": 1},
+          "Forgemaster": {"Earth": 1,"Fire": 1,"Enhance": 3},
+          "Illuminator": {"Air": 3,"Water": 1,"Light": 1},
+          "Sentinel": {"Earth": 1,"Mental": 1,"Enhance": 3},
+          "Transmuter": {"Air": 3,"Earth": 1,"Water": 1}
+        }
+      },
+      Tortoise: {
+        class: "tortoise", attunements: {
+          "Acolyte": {"Water": 1,"Life": 1,"Percieve": 3},
+          "Champion": {"Water": 1,"Mental": 3,"Enhance": 1},
+          "Cloudcaller": {"Air": 1,"Water": 1,"Perceive": 3},
+          "Illusionist": {"Earth": 3,"Light": 1,"Perceive": 1},
+          "Seer": {"Light": 1,"Death": 3,"Mental": 1},
+          "Soulblade": {"Light": 1,"Life": 1,"Motion": 3},
+          "Wavewalker": {"Water": 1,"Perceive": 3,"Motion": 1},
+          "Wayfarer": {"Air": 1,"Mental": 1,"Motion": 1}
+        }
+      },
+      Phoenix: {
+        class: "phoenix", attunements: {
+          "Conjurer": {"Umbral": 1,"Life": 1,"Mental": 3},
+          "Dancer": {"Air": 3,"Water": 1,"Mental": 1},
+          "Mesmer": {"Umbral": 3,"Death": 1,"Perceive": 1},
+          "Purifier": {"Fire": 1,"Light": 1,"Mental": 3},
+          "Pyromancer": {"Fire": 1,"Umbral": 3,"Death": 1},
+          "Shapeshifter": {"Earth": 1,"Life": 3,"Perceive": 1},
+          "Spellsinger": {"Air": 1,"Light": 3,"Perceive": 1},
+          "Swordmaster": {"Earth": 3,"Fire": 1,"Enhance": 1}
+        }
+      },
+      Serpent: {
+        class: "serpent", attunements: {
+          "Diviner": {"Water": 3,"Mental": 1,"Enhance": 1},
+          "Elementalist": {"Air": 1,"Fire": 1,"Water": 3},
+          "Enchanter": {"Light": 3,"Mental": 1,"Motion": 1},
+          "Guardian": {"Earth": 3,"Life": 1,"Enhance": 1},
+          "Mender": {"Earth": 1,"Water": 3,"Life": 1},
+          "Shadow": {"Umbral": 1,"Death": 3,"Enhance": 1},
+          "Shaper": {"Earth": 1,"Perceive": 3,"Enhance": 1},
+          "Summoner": {"Air": 1,"Life": 3,"Motion": 1}
+        }
+      },
+      Hydra: {
+        class: "hydra", attunements: {
+          "Assassin": {"Water": 1,"Umbral": 1,"Death": 3},
+          "Commander": {"Air": 3,"Fire": 1,"Umbral": 1},
+          "Executioner": {"Earth": 3,"Death": 1,"Enhance": 1},
+          "Juggernaut": {"Earth": 3,"Fire": 1,"Motion": 1},
+          "Legionnaire": {"Air": 1,"Fire": 3,"Light": 1},
+          "Saboteur": {"Earth": 1,"Fire": 3,"Umbral": 1},
+          "Scourge": {"Air": 1,"Water": 3,"Death": 1},
+          "Shieldbreaker": {"Fire": 3,"Death": 1,"Motion": 1}
+        }
+      },
+      Restricted: {
+        class: "restricted", attunements: {
+          "Abjurer": {"Light": 1,"Death": 1,"Motion": 3},
+          "Arbiter": {"Light": 3,"Life": 1,"Motion": 1},
+          "Chronomancer": {"Death": 3,"Perceive": 1,"Motion": 1},
+          "Heirophant": {"Air": 1,"Life": 1,"Mental": 3},
+          "Necromancer": {"Earth": 1,"Death": 1,"Life": 1},
+          "Paladin": {"Light": 1,"Life": 3,"Motion": 1},
+          "Sovreign": {"Umbral": 1,"Death": 1,"Enhance": 3},
+          "Whisper": {"Fire": 1,"Umbral": 3,"Perceive": 1}
+        }
+      }
+    };
+    const compounds = [
+      ["Acuity", "Motion", "Mental"],
+      ["Adaptation", "Life", "Motion"],
+      ["Alteration", "Earth", "Perceive"],
+      ["Banishment", "Light", "Death"],
+      ["Blight", "Air", "Death"],
+      ["Blood", "Water", "Life"],
+      ["Bone", "Earth", "Death"],
+      ["Breath", "Air", "Life"],
+      ["Chaos", "Death", "Motion"],
+      ["Clarity", "Water", "Mental"],
+      ["Coercion", "Enhance", "Perceive"],
+      ["Communication", "Air", "Mental"],
+      ["Constellations", "Light", "Motion"],
+      ["Dawn", "Fire", "Enhance"],
+      ["Density", "Earth", "Enhance"],
+      ["Destiny", "Light", "Mental"],
+      ["Dreams", "Umbral", "Perceive"],
+      ["Enervation", "Earth", "Umbral"],
+      ["Heat", "Fire", "Motion"],
+      ["Ice", "Water", "Enhance"],
+      ["Incineration", "Fire", "Death"],
+      ["Lies", "Fire", "Perceive"],
+      ["Lightning", "Air", "Fire"],
+      ["Madness", "Death", "Perceive"],
+      ["Memory", "Enhance", "Mental"],
+      ["Metal", "Earth", "Fire"],
+      ["Peace", "Water", "Light"],
+      ["Poison", "Water", "Umbral"],
+      ["Protection", "Life", "Enhance"],
+      ["Purity", "Fire", "Light"],
+      ["Rain", "Air", "Water"],
+      ["Ruin", "Death", "Enhance"],
+      ["Sand", "Earth", "Water"],
+      ["Secrets", "Umbral", "Mental"],
+      ["Shade", "Umbral", "Life"],
+      ["Sight", "Light", "Perceive"],
+      ["Sound", "Air", "Perceive"],
+      ["Spirit", "Light", "Life"],
+      ["Supremacy", "Umbral", "Death"],
+      ["Tides", "Water", "Motion"],
+      ["Time", "Motion", "Perceive"],
+      ["Tranquillity", "Earth", "Mental"],
+      ["Transcendence", "Life", "Mental"],
+      ["Travel", "Air", "Motion"],
+      ["Vitality", "Air", "Light"],
+      ["Void", "Umbral", "Enhance"],
+      ["War", "Fire", "Umbral"],
+      ["Wood", "Earth", "Life"]
+    ];
+    const compoundMap = {};
+    compounds.forEach(([n, t1, t2]) => {
+      compoundMap[`${t1}-${t2}`] = n;
+      compoundMap[`${t2}-${t1}`] = n;
+    });
+    let selected = new Set();
+    const container = document.getElementById("container");
+    // BUILD ATTUNEMENTS
+    for (let spireName in spires) {
+      const spire = spires[spireName];
+      let firstAttunement = true;
+      for (let attName in spire.attunements) {
+        const div = document.createElement("div");
+        div.className = `attunement ${spire.class}`;
+        // Anchor ID for first attunement
+        if (firstAttunement) {
+          div.id = `anchor-${spireName.toLowerCase()}`;
+          firstAttunement = false;
+        }
+        // Name
+        const nameDiv = document.createElement("div");
+        nameDiv.innerText = attName;
+        // Tag container
+        const tagContainer = document.createElement("div");
+        tagContainer.className = "tag-container";
+        // Compound tags container
+        const compoundTagContainer = document.createElement("div");
+        compoundTagContainer.className = "tag-container compound-tags";
+        // Get magic data
+        const data = spire.attunements[attName];
+        const primaryTypes = [];
+        const tertiaryTypes = [];
+        // Separate by level
+        for (let type in data) {
+          if (data[type] === 1) primaryTypes.push(type);
+          if (data[type] === 3) tertiaryTypes.push(type);
+        }
+        // Combine in correct order
+        const orderedTypes = [...primaryTypes, ...tertiaryTypes];
+        // Build tags
+        orderedTypes.forEach(type => {
+          const tag = document.createElement("span");
+          tag.className = "tag";
+          if (data[type] === 3) {
+            tag.classList.add("weak"); // tertiary styling
+          }
+          tag.innerText = type;
+          tagContainer.appendChild(tag);
+        });
+        // Assemble
+        div.appendChild(nameDiv);
+        div.appendChild(tagContainer);
+        div.appendChild(compoundTagContainer);
+        // Click handler
+        div.onclick = () => {
+          if (selected.has(attName)) {
+            selected.delete(attName);
+            div.classList.remove("selected");
+          } else {
+            selected.add(attName);
+            div.classList.add("selected");
+          }
+          // Remove old glow
+          document.querySelectorAll(".attunement")
+            .forEach(a => a.classList.remove("spire-glow"));
+          // Add glow to matching spires
+          selected.forEach(selName => {
+            for (let sName in spires) {
+              if (spires[sName].attunements[selName]) {
+                const spireClass = spires[sName].class;
+                document.querySelectorAll(`.attunement.${spireClass}`)
+                  .forEach(a => a.classList.add("spire-glow"));
+                break;
+              }
+            }
+          });
+          updateDescriptions();
+          updateMagic();
+        };
+        container.appendChild(div);
+      }
+    }
+    // DESCRIPTION FUNCTION
+    function updateDescriptions() {
+      const container = document.getElementById("attunementDescriptions");
+      container.innerHTML = "";
+      if (selected.size === 0) {
+        const placeholder = document.createElement("p");
+        placeholder.innerText = "Please select attunements to view their abilities.";
+        placeholder.style.opacity = "0.7";
+        placeholder.style.fontStyle = "italic";
+        container.appendChild(placeholder);
+        return;
+      }
+      // Otherwise show descriptions
+      selected.forEach(name => {
+        const desc = attunementDescriptions[name];
+        if (!desc) return;
+        const p = document.createElement("p");
+        const title = document.createElement("weak");
+        title.innerText = name + " - ";
+        const text = document.createElement("span");
+        text.innerText = desc;
+        p.appendChild(title);
+        p.appendChild(text);
+        container.appendChild(p);
+      });
+    }
+    // --- MAGIC GRID WITH FILTER BUTTONS ---
+    const magicGrid = document.getElementById("magicGrid");
+    let activeFilters = {};
+    let filterModes = ["AND", "OR", "AND Primary", "OR Primary"];
+    let filterIndex = 0;
+    let filterMode = filterModes[filterIndex];
+    magicPairs.forEach(pair => {
+      const pairDiv = document.createElement("div");
+      pairDiv.className = "magic-pair";
+      pairDiv.dataset.pair = pair.join("-");
+      pair.forEach(type => {
+        const div = document.createElement("div");
+        div.className = "magic";
+        div.id = type;
+        const nameSpan = document.createElement("span");
+        nameSpan.innerText = type;
+        const countSpan = document.createElement("span");
+        countSpan.className = "magic-count";
+        div.appendChild(nameSpan);
+        div.appendChild(countSpan);
+        pairDiv.appendChild(div);
+        // --- CLICK FILTER ---
+        div.onclick = () => {
+          const current = activeFilters[type];
+          if (current === "include") {
+            activeFilters[type] = "exclude";
+          } else if (current === "exclude") {
+            delete activeFilters[type];
+          } else {
+            activeFilters[type] = "include";
+          }
+          updateMagicButtonStyles();
+          filterAttunements();
+        };
+      });
+      magicGrid.appendChild(pairDiv);
+    });
+    // --- FILTER FUNCTION ---
+    function toggleFilterMode() {
+      filterIndex = (filterIndex + 1) % filterModes.length;
+      filterMode = filterModes[filterIndex];
+      document.getElementById("filterModeBtn").innerText = `Filter Mode: ${filterMode}`;
+      filterAttunements();
+    }
+
+    function filterAttunements() {
+      const attunementDivs = document.querySelectorAll(".attunement");
+      attunementDivs.forEach(attDiv => {
+        const name = attDiv.querySelector("div:first-child").innerText;
+        let attData = null;
+        for (let spireName in spires) {
+          if (spires[spireName].attunements[name]) {
+            attData = spires[spireName].attunements[name];
+            break;
+          }
+        }
+        if (!attData) return;
+        const attTypes = Object.keys(attData);
+        // INCLUDE / EXCLUDE filters
+        const includeFilters = Object.keys(activeFilters).filter(t => activeFilters[t] === "include");
+        const excludeFilters = Object.keys(activeFilters).filter(t => activeFilters[t] === "exclude");
+        // Determine which types to check based on filterMode
+        const primaryOnly = filterMode.includes("Primary");
+        // Check inclusion
+        if (includeFilters.length > 0) {
+          let matchesInclude;
+          const attTypesToCheck = primaryOnly ?
+            attTypes.filter(t => attData[t] === 1) // only primary
+            :
+            attTypes; // all levels
+          if (filterMode.startsWith("AND")) {
+            matchesInclude = includeFilters.every(t => attTypesToCheck.includes(t));
+          } else {
+            matchesInclude = includeFilters.some(t => attTypesToCheck.includes(t));
+          }
+          if (!matchesInclude) {
+            attDiv.style.display = "none";
+            return;
+          }
+        }
+        // Check exclusion (still considers all levels)
+        const matchesExclude = excludeFilters.some(t => attTypes.includes(t));
+        if (matchesExclude) {
+          attDiv.style.display = "none";
+          return;
+        }
+        attDiv.style.display = "flex";
+      });
+    }
+
+    function updateMagicButtonStyles() {
+      allTypes.forEach(type => {
+        const div = document.getElementById(type);
+        // Reset styles
+        div.classList.remove("selected", "exclude");
+        if (activeFilters[type] === "include") {
+          div.classList.add("selected"); // white glow
+        } else if (activeFilters[type] === "exclude") {
+          div.classList.add("exclude"); // red glow
+        }
+      });
+    }
+    // COMPOUND GRID
+    const compoundGrid = document.getElementById("compoundGrid");
+    compoundGrid.appendChild(document.createElement("div"));
+    allTypes.forEach(type => {
+      const div = document.createElement("div");
+      div.className = "header";
+      div.innerText = type;
+      compoundGrid.appendChild(div);
+    });
+    allTypes.forEach(rowType => {
+      const rowHeader = document.createElement("div");
+      rowHeader.className = "header";
+      rowHeader.innerText = rowType;
+      compoundGrid.appendChild(rowHeader);
+      allTypes.forEach(colType => {
+        const div = document.createElement("div");
+        div.className = "compound";
+        const name = compoundMap[`${rowType}-${colType}`];
+        if (name && rowType !== colType) {
+          div.innerText = name;
+        } else {
+          div.style.opacity = "0.15";
+        }
+        compoundGrid.appendChild(div);
+      });
+    });
+    //UPDATE MAGIC
+    function updateMagic() {
+      const results = {};
+      const counts1 = {};
+      const counts3 = {};
+      // Initialize all types
+      allTypes.forEach(t => {
+        results[t] = {
+          has1: false,
+          has3: false
+        };
+        counts1[t] = 0;
+        counts3[t] = 0;
+      });
+      // Count selected attunements
+      for (let spireName in spires) {
+        for (let name of selected) {
+          const data = spires[spireName].attunements[name];
+          if (!data) continue;
+          for (let type in data) {
+            if (data[type] === 1) {
+              results[type].has1 = true;
+              counts1[type]++;
+            }
+            if (data[type] === 3) {
+              results[type].has3 = true;
+              counts3[type]++;
+            }
+          }
+        }
+      }
+      // Update the magic grid
+      allTypes.forEach(type => {
+        const div = document.getElementById(type);
+        // Preserve manual selection
+        const isSelected = div.classList.contains("selected");
+        // Reset classes
+        div.className = "magic";
+        // Restore filter state after reset
+        if (activeFilters[type] === "include") div.classList.add("selected");
+        if (activeFilters[type] === "exclude") div.classList.add("exclude");
+        // Reset previous attunement highlight
+        div.classList.remove("attunement-highlight");
+        // Prioritize green over yellow for attunement levels
+        if (results[type].has1) {
+          div.classList.add("green");
+        } else if (results[type].has3) {
+          div.classList.add("yellow");
+        }
+        // Add attunement highlight: change text color when highlighted via attunement
+        if (results[type].has1 || results[type].has3) {
+          div.classList.add("attunement-highlight");
+        }
+        // Update counts
+        const parts = [];
+        if (counts1[type]) parts.push(counts1[type]);
+        if (counts3[type]) parts.push(counts3[type]);
+        div.querySelector(".magic-count").innerText = parts.join(" / ");
+      });
+      // Update the compound grid
+      document.querySelectorAll(".compound").forEach(div => {
+        const compoundName = div.innerText;
+        if (!compoundName) return;
+        const compound = compounds.find(c => c[0] === compoundName);
+        if (!compound) return;
+        const [name, t1, t2] = compound;
+        // Check all selected attunements
+        let t1Is1 = false,
+          t2Is1 = false;
+        let t1Exists = false,
+          t2Exists = false;
+        for (let spireName in spires) {
+          for (let sel of selected) {
+            const data = spires[spireName].attunements[sel];
+            if (!data) continue;
+            if (data[t1] === 1) t1Is1 = true;
+            if (data[t2] === 1) t2Is1 = true;
+            if (data[t1] === 1 || data[t1] === 3) t1Exists = true;
+            if (data[t2] === 1 || data[t2] === 3) t2Exists = true;
+          }
+        }
+        div.className = "compound"; // reset classes
+        if (t1Is1 && t2Is1) {
+          // Both sources are covered by 1s → green
+          div.classList.add("green");
+        } else if (t1Exists && t2Exists) {
+          // Both sources exist (1 or 3) → yellow
+          div.classList.add("yellow");
+        } else {
+          // **Inactive compound: apply dark style instead of fading**
+          div.classList.add("inactive"); // <- THIS IS THE KEY CHANGE
+          // Remove the old opacity line:
+          // div.style.opacity = "0.15";
+        }
+      });
+      // --- Update compound tags inside each attunement box ---
+      document.querySelectorAll(".attunement").forEach(attDiv => {
+        const name = attDiv.querySelector("div:first-child").innerText;
+        // Find attunement data
+        let attData = null;
+        for (let spireName in spires) {
+          if (spires[spireName].attunements[name]) {
+            attData = spires[spireName].attunements[name];
+            break;
+          }
+        }
+        if (!attData) return;
+        const compoundContainer = attDiv.querySelector(".compound-tags");
+        compoundContainer.innerHTML = ""; // clear previous
+        const types = Object.keys(attData).filter(t => attData[t] > 0);
+        // For every pair of types in this attunement, check for a compound
+        // Collect all compound tags first
+        const compoundTags = [];
+        for (let i = 0; i < types.length; i++) {
+          for (let j = i + 1; j < types.length; j++) {
+            const t1 = types[i],
+              t2 = types[j];
+            const compoundName = compoundMap[`${t1}-${t2}`];
+            if (!compoundName) continue;
+            const tag = document.createElement("span");
+            tag.className = "tag";
+            // Green if both are level 1, else yellow
+            if (attData[t1] === 1 && attData[t2] === 1) tag.classList.add("primary");
+            else tag.classList.add("tertiary");
+            tag.innerText = compoundName;
+            compoundTags.push(tag);
+          }
+        }
+        // Sort green first
+        compoundTags.sort((a, b) => {
+          if (a.classList.contains("primary") && !b.classList.contains("primary")) return -1;
+          if (!a.classList.contains("primary") && b.classList.contains("primary")) return 1;
+          return 0;
+        });
+        // Append in sorted order
+        compoundTags.forEach(tag => compoundContainer.appendChild(tag));
+      });
+      // --- HANDLE EXCEPTION RULES (REMOVE X's) ---
+      document.querySelectorAll(".magic-pair").forEach(pairDiv => {
+        pairDiv.classList.remove("no-x");
+        const pair = pairDiv.dataset.pair.split("-");
+        for (let att of selected) {
+          const exceptions = attunementExceptions[att];
+          if (!exceptions) continue;
+          const match = exceptions.some(([a, b]) =>
+            (a === pair[0] && b === pair[1]) ||
+            (a === pair[1] && b === pair[0])
+          );
+          if (match) {
+            pairDiv.classList.add("no-x");
+            break; // one match is enough
+          }
+        }
+      });
+    }
+
+    function shareBuild() {
+      if (selected.size === 0) {
+        alert("No attunements selected to share!");
+        return;
+      }
+      // Convert selected set to array
+      const buildArray = Array.from(selected);
+      // Encode into URL
+      const params = new URLSearchParams();
+      params.set("build", buildArray.join(","));
+      const shareURL = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
+      // Copy to clipboard
+      navigator.clipboard.writeText(shareURL)
+    }
+
+    function clearFilters() {
+      activeFilters = {}; // reset all filters
+      updateMagicButtonStyles();
+      filterAttunements();
+    }
+
+    function clearSelections() {
+      selected.clear(); // remove all selected attunements
+      // Remove visual selection
+      document.querySelectorAll(".attunement").forEach(div => {
+        div.classList.remove("selected", "spire-glow");
+      });
+      updateDescriptions();
+      updateMagic();
+    }
+
+    function shareBuild() {
+      if (selected.size === 0) return;
+      const buildArray = Array.from(selected);
+      const params = new URLSearchParams();
+      params.set("build", buildArray.join(","));
+      const shareURL = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
+      navigator.clipboard.writeText(shareURL);
+      const btn = document.querySelector("button[onclick='shareBuild()']");
+      btn.innerText = "Link copied";
+      setTimeout(() => btn.innerText = "Share Build", 1000);
+    }
+
+    function loadBuildFromURL() {
+      const params = new URLSearchParams(window.location.search);
+      const build = params.get("build");
+      if (!build) return;
+      const names = build.split(",");
+      document.querySelectorAll(".attunement").forEach(div => {
+        const name = div.querySelector("div:first-child").innerText;
+        if (names.includes(name)) {
+          div.click(); // simulate real selection
+        }
+      });
+    }
+    // --- INITIAL CALLS ---
+    updateMagic();
+    updateDescriptions();
+    // Run on page load
+    loadBuildFromURL();
+  </script>
+</body>
